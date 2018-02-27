@@ -74,5 +74,5 @@ def actor_critic(epochs=1000, GAMMA = 0.99, load_file=False, render=False, temp=
 
 
 if __name__ == '__main__':
-    actor_critic(epochs=40000)       
+    actor_critic(epochs=2000)       
         
