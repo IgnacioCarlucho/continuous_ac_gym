@@ -12,7 +12,7 @@ CRITIC_LEARNING_RATE =  0.001
 #
 ACTION_BOUND = 2.
 
-def actor_critic(epochs=1000, GAMMA = 0.99, load_file=False, render=False, temp=False):
+def actor_critic(epochs=1000, GAMMA = 0.99, load_file=False, render=False, temp=False, verbose=False):
     with tf.Session() as sess:
         
         
@@ -37,7 +37,7 @@ def actor_critic(epochs=1000, GAMMA = 0.99, load_file=False, render=False, temp=
                 # Choose and take action, and observe reward
                 action = actor.predict(np.reshape(state,(1,robot.state_dim)))
                 next_state, reward, done, step = robot.update(action)
-                print(step,'action', round(action,3), 'state', round(robot.tita,3), round(robot.state[2],3) ,'r', round(reward,3))
+                
                 # Train 
                 V_minib = critic.predict(np.reshape(state, (1, robot.state_dim)))
                 V_minib_next = critic.predict(np.reshape(next_state, (1, robot.state_dim)))
@@ -53,7 +53,9 @@ def actor_critic(epochs=1000, GAMMA = 0.99, load_file=False, render=False, temp=
               
                 state = next_state
                 ep_reward = ep_reward + reward
-                # this print is usefull for debuggin  
+                # this print is usefull for debuggin
+                if verbose:
+                    print(step,'action', round(action,3), 'state', round(robot.tita,3), round(robot.state[2],3) ,'r', round(reward,3))  
                
             
             print('episode', i+1,'Steps', step,'Reward:',ep_reward,'goal achieved:', robot.goal,'Efficiency', round(100.*((robot.goal)/(i+1.)),0), '%' )
