@@ -6,8 +6,8 @@ import numpy as np
 # ===========================
 
 
-FIRST_LAYER = 150
-SECOND_LAYER = 150
+FIRST_LAYER = 500
+SECOND_LAYER = 500
 
 class ActorNetwork(object):
     """
@@ -34,13 +34,12 @@ class ActorNetwork(object):
             self.td_error = tf.placeholder(dtype=tf.float32, name="advantage")
             self.action_history = tf.placeholder(dtype=tf.float32, name="action_history")
             
-            self.loss = -self.normal_dist.log_prob(self.action_history)*self.td_error - 0.1*self.normal_dist.entropy()
+            self.loss = -self.normal_dist.log_prob(self.action_history)*self.td_error - .01*self.normal_dist.entropy()
 
             self.optimizer = tf.train.AdamOptimizer(learning_rate)#tf.train.RMSPropOptimizer(learning_rate) 
             self.train_op = self.optimizer.minimize(self.loss)
             
-            self.num_trainable_vars = len(
-                self.network_params)             
+            self.num_trainable_vars = len(self.network_params)             
 
     def create_actor_network(self,scope):
         with tf.variable_scope(scope):
@@ -82,7 +81,7 @@ class ActorNetwork(object):
 
 
             self.saver = tf.train.Saver()
-            return inputs, out, normal_dist
+            return inputs, scaled_out, normal_dist
 
 
     

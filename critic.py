@@ -4,8 +4,8 @@ import tensorflow as tf
 import numpy as np
 
 
-FIRST_LAYER = 150
-SECOND_LAYER = 150
+FIRST_LAYER = 500
+SECOND_LAYER = 500
 
 
 class CriticNetwork(object):
