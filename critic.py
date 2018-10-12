@@ -14,12 +14,12 @@ class CriticNetwork(object):
     The action must be obtained from the output of the Actor network.
     """
 
-    def __init__(self, sess, state_dim, learning_rate, num_actor_vars, scope = "value_estimator"):
+    def __init__(self, sess, state_dim, learning_rate, num_actor_vars, scope = "value_estimator", device = '/cpu:0'):
         with tf.variable_scope(scope):
             self.sess = sess
             self.s_dim = state_dim
             self.learning_rate = learning_rate
-
+            self.device = device
             # Create the critic network
             self.inputs, self.out = self.create_critic_network(scope)
 
@@ -34,33 +34,22 @@ class CriticNetwork(object):
             
 
     def create_critic_network(self, scope):
-        with tf.variable_scope(scope):
-            # weights initialization
-            w1_initial = np.random.normal(size=(self.s_dim,FIRST_LAYER)).astype(np.float32)
-            w2_initial = np.random.normal(size=(FIRST_LAYER,SECOND_LAYER)).astype(np.float32)
-            #w3_initial = np.random.normal(size=(SECOND_LAYER,1)).astype(np.float32)
+        with tf.device(self.device):
+            with tf.variable_scope(scope):
+                
 
-            w3_initial = np.random.uniform(size=(SECOND_LAYER,1),low= -0.001, high=0.001 ).astype(np.float32)
-            # Placeholders
-            inputs = tf.placeholder(tf.float32, shape=[None, self.s_dim], name = 'inputs')
+
+                # Placeholders
+                inputs = tf.placeholder(tf.float32, shape=[None, self.s_dim])
+                # Layer 1 without BN
+                
+                l1 = tf.contrib.layers.fully_connected(inputs,FIRST_LAYER)
+                l2 = tf.contrib.layers.fully_connected(l1,SECOND_LAYER)
+                out = tf.contrib.layers.fully_connected(l2,1, activation_fn=None)
+                
+        self.saver = tf.train.Saver()
             
-            # Layer 1 contains only the inputs of the state
-            w1 = tf.Variable(w1_initial)
-            b1 = tf.Variable(tf.zeros([FIRST_LAYER]))
-            z1 = tf.matmul(inputs,w1) + b1
-            l1 = tf.nn.relu(z1)
-            # Layer in this layer, the actions are merged as inputs
-            w2_i = tf.Variable(w2_initial)
-            b2 = tf.Variable(tf.zeros([SECOND_LAYER]))
-            z2 = tf.matmul(l1,w2_i) + b2 
-            l2 = tf.nn.relu(z2)
-            #output layer
-            w3 = tf.Variable(w3_initial)
-            b3 = tf.Variable(tf.zeros([1]))
-            out  = tf.matmul(l2,w3) + b3 # linear activation
-            self.saver = tf.train.Saver()
-            
-            return inputs, out
+        return inputs, out
 
 
       
@@ -84,12 +73,12 @@ class CriticNetwork(object):
 
        
     def save_critic(self):
-        self.saver.save(self.sess,'critic_model.ckpt')
+        self.saver.save(self.sess,'./critic_model.ckpt')
         #saver.save(self.sess,'actor_model.ckpt')
         print("Model saved in file:")
 
     
     def recover_critic(self):
-        self.saver.restore(self.sess,'critic_model.ckpt')
+        self.saver.restore(self.sess,'./critic_model.ckpt')
         #saver.restore(self.sess,'critic_model.ckpt')
     

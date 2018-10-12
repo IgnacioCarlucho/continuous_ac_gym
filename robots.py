@@ -12,6 +12,7 @@ class gym_mountaincar(object):
         self.temp = temp
         self.MY_ENV_NAME = 'MountainCarContinuous-v0'
         self.env = gym.make(self.MY_ENV_NAME)
+                
         #
         self.action_dim = 1#self.env.action_space
         self.state_dim = 2#self.env.observation_space
@@ -29,9 +30,12 @@ class gym_mountaincar(object):
         self.action = [action]
         self.state, self.reward, self.done, self.info = self.env.step(self.action)
         self.step = self.step + 1
-        #if self.state == (some goal measurement):
-        #    # I reached the goal
-        #    self.goal = self.goal + 1
+        self.reward = np.clip(self.reward,-1.,1.)
+        if self.state[0] > 0.4:
+            # I reached the goal
+            self.done = True
+            self.goal = self.goal + 1
+            self.reward = 100.
 
         self.development() # this is just in case you want to render, or slow down the execution
         return self.state, self.reward, self.done, self.step
